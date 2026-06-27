@@ -85,12 +85,25 @@ export class AuthService {
     return this.sanitize(user);
   }
 
-  async updateProfile(userId: string, data: { name?: string; email?: string }) {
+  async updateProfile(userId: string, data: { name?: string; email?: string; currentPassword?: string; newPassword?: string }) {
     if (data.email) {
       const existing = await repo.findByEmail(data.email);
       if (existing && existing.id !== userId) throw new Error('Email already in use');
     }
-    const user = await repo.update(userId, data);
+
+    const updateData: { name?: string; email?: string; passwordHash?: string } = {};
+    if (data.name) updateData.name = data.name;
+    if (data.email) updateData.email = data.email;
+
+    if (data.currentPassword && data.newPassword) {
+      const user = await repo.findById(userId);
+      if (!user) throw new Error('User not found');
+      const valid = await bcrypt.compare(data.currentPassword, user.passwordHash);
+      if (!valid) throw new Error('Invalid current password');
+      updateData.passwordHash = await bcrypt.hash(data.newPassword, 12);
+    }
+
+    const user = await repo.update(userId, updateData);
     return this.sanitize(user);
   }
 

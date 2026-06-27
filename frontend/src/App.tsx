@@ -10,6 +10,8 @@ import { VehiclesPage } from './pages/VehiclesPage';
 import { VehicleNewPage } from './pages/VehicleNewPage';
 import { VehicleEditPage } from './pages/VehicleEditPage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { SettingsPage } from './pages/SettingsPage';
+import { InstallBanner } from './components/pwa/InstallBanner';
 import { FuelingsPage } from './pages/FuelingsPage';
 import { FuelingNewPage } from './pages/FuelingNewPage';
 import { MaintenancesPage } from './pages/MaintenancesPage';
@@ -50,12 +52,13 @@ export default function App() {
             <Route path="/documents" element={<DocumentsPage />} />
             <Route path="/reports" element={<ReportsPage />} />
             <Route path="/alerts" element={<AlertsPage />} />
-            <Route path="/settings" element={<div className="p-4"><h1 className="text-2xl font-bold">Configurações</h1><p className="text-muted-foreground mt-2">Em desenvolvimento</p></div>} />
+            <Route path="/settings" element={<SettingsPage />} />
           </Route>
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+      <InstallBanner />
     </Suspense>
   );
 }
