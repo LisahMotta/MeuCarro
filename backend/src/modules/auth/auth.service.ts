@@ -11,13 +11,13 @@ function signAccessToken(user: User) {
   return jwt.sign(
     { id: user.id, email: user.email, plan: user.plan },
     env.JWT_SECRET,
-    { expiresIn: env.JWT_EXPIRES_IN }
+    { expiresIn: env.JWT_EXPIRES_IN as any }
   );
 }
 
 function signRefreshToken(userId: string) {
   return jwt.sign({ id: userId }, env.JWT_REFRESH_SECRET, {
-    expiresIn: env.JWT_REFRESH_EXPIRES_IN,
+    expiresIn: env.JWT_REFRESH_EXPIRES_IN as any,
   });
 }
 
