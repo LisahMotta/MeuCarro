@@ -10,28 +10,25 @@ Controle inteligente de veículos — gastos, manutenções, documentos e alerta
 
 ## Deploy
 
-### Backend → Railway
+### Railway (Fullstack)
 
-1. Crie um projeto no [Railway](https://railway.app)
-2. Adicione um serviço PostgreSQL ao projeto
-3. Faça deploy da pasta `/backend` apontando para o `Dockerfile`
-4. Configure as variáveis de ambiente (veja `/backend/.env.example`):
-   - `DATABASE_URL` — copiado do serviço PostgreSQL do Railway
-   - `JWT_SECRET` — string aleatória ≥32 caracteres
-   - `JWT_REFRESH_SECRET` — string aleatória ≥32 caracteres
-   - `FRONTEND_URL` — URL do seu deploy no Vercel
+O backend Express serve o frontend React buildado como arquivos estáticos — um único serviço, uma única URL, sem CORS.
+
+1. Acesse [railway.app](https://railway.app) → **New Project**
+2. Adicione um serviço **PostgreSQL** (+ New → Database → PostgreSQL)
+3. Adicione um serviço **GitHub Repo** → selecione o repositório → **Root Directory: `/`** (raiz)
+4. Em **Variables** do serviço, adicione:
+   - `DATABASE_URL` → copie `DATABASE_PUBLIC_URL` do serviço PostgreSQL
+   - `JWT_SECRET` → string aleatória ≥ 32 chars
+   - `JWT_REFRESH_SECRET` → outra string aleatória ≥ 32 chars
+   - `NODE_ENV` → `production`
+   - `FRONTEND_URL` → URL gerada pelo Railway (preencha após o primeiro deploy)
 5. Após o deploy, rode as migrations:
    ```
-   railway run npm run db:migrate
+   railway run node dist/migrate.js
    ```
-
-### Frontend → Vercel
-
-1. Importe o repositório no [Vercel](https://vercel.com)
-2. Configure o **Root Directory** como `frontend` (ou use o `vercel.json` na raiz)
-3. Configure a variável de ambiente:
-   - `VITE_API_URL` — URL do backend no Railway (ex: `https://meucarro-api.up.railway.app`)
-4. Deploy automático a cada push no branch principal
+   Ou via Railway CLI: `railway run npm run db:migrate`
+6. Acesse a URL pública gerada — frontend e backend no mesmo domínio ✅
 
 ## Desenvolvimento local
 
