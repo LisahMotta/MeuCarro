@@ -8,6 +8,7 @@ import { env } from './config/env';
 import { authRoutes } from './modules/auth/auth.routes';
 import { vehiclesRoutes } from './modules/vehicles/vehicles.routes';
 import { fuelingsRoutes } from './modules/fuelings/fuelings.routes';
+import { maintenancesRoutes } from './modules/maintenances/maintenances.routes';
 import { errorHandler } from './middleware/error.middleware';
 
 const app = express();
@@ -31,6 +32,7 @@ app.get('/api/health', (_req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/vehicles', vehiclesRoutes);
 app.use('/api/vehicles/:vehicleId/fuelings', fuelingsRoutes);
+app.use('/api/vehicles/:vehicleId/maintenances', maintenancesRoutes);
 
 app.use(errorHandler);
 

@@ -12,6 +12,8 @@ import { VehicleEditPage } from './pages/VehicleEditPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { FuelingsPage } from './pages/FuelingsPage';
 import { FuelingNewPage } from './pages/FuelingNewPage';
+import { MaintenancesPage } from './pages/MaintenancesPage';
+import { MaintenanceNewPage } from './pages/MaintenanceNewPage';
 
 function LoadingScreen() {
   return (
@@ -38,7 +40,8 @@ export default function App() {
             <Route path="/vehicles/:id/edit" element={<VehicleEditPage />} />
             <Route path="/fuelings" element={<FuelingsPage />} />
             <Route path="/fuelings/new" element={<FuelingNewPage />} />
-            <Route path="/maintenances" element={<div className="p-4"><h1 className="text-2xl font-bold">Manutenções</h1><p className="text-muted-foreground mt-2">Em desenvolvimento — Etapa 4</p></div>} />
+            <Route path="/maintenances" element={<MaintenancesPage />} />
+            <Route path="/maintenances/new" element={<MaintenanceNewPage />} />
             <Route path="/tires" element={<div className="p-4"><h1 className="text-2xl font-bold">Pneus</h1><p className="text-muted-foreground mt-2">Em desenvolvimento — Etapa 5</p></div>} />
             <Route path="/documents" element={<div className="p-4"><h1 className="text-2xl font-bold">Documentos</h1><p className="text-muted-foreground mt-2">Em desenvolvimento — Etapa 5</p></div>} />
             <Route path="/reports" element={<div className="p-4"><h1 className="text-2xl font-bold">Relatórios</h1><p className="text-muted-foreground mt-2">Em desenvolvimento — Etapa 7</p></div>} />
