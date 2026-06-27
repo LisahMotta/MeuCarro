@@ -45,7 +45,7 @@ const docTypeLabels: Record<string, string> = {
 
 function getSubtitle(event: HistoryEvent): string {
   if (event.type === 'maintenance' && event.meta.category) {
-    return categoryLabels[event.meta.category as string] ?? String(event.meta.category);
+    return (categoryLabels as Record<string, string>)[event.meta.category as string] ?? String(event.meta.category);
   }
   if (event.type === 'tire_event' && event.meta.eventType) {
     return tireEventLabels[event.meta.eventType as string] ?? String(event.meta.eventType);

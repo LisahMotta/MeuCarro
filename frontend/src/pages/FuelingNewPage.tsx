@@ -39,7 +39,7 @@ export function FuelingNewPage() {
       <div className="bg-card border border-border rounded-2xl p-6">
         <FuelingForm
           vehicleCurrentKm={selectedVehicle.currentKm}
-          vehicleFuelType={selectedVehicle.fuelType as any}
+          vehicleFuelType={selectedVehicle.fuelType}
           isLoading={mutation.isPending}
           onSubmit={async (data) => {
             await mutation.mutateAsync(data);

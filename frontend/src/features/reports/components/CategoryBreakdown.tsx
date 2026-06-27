@@ -23,7 +23,7 @@ export function CategoryBreakdown({ byCategory, total }: Props) {
   }
 
   const chartData = byCategory.map((c) => ({
-    name: categoryLabels[c.category] ?? c.category,
+    name: (categoryLabels as Record<string, string>)[c.category] ?? c.category,
     value: c.total,
   }));
 
@@ -46,7 +46,7 @@ export function CategoryBreakdown({ byCategory, total }: Props) {
             <div key={c.category} className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: COLORS[idx % COLORS.length] }} />
-                <span className="text-sm text-foreground">{categoryLabels[c.category] ?? c.category}</span>
+                <span className="text-sm text-foreground">{(categoryLabels as Record<string, string>)[c.category] ?? c.category}</span>
               </div>
               <div className="text-right">
                 <span className="text-sm font-medium text-foreground">{formatCurrency(c.total)}</span>

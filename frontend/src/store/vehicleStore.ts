@@ -1,15 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-
-interface Vehicle {
-  id: string;
-  brand: string;
-  model: string;
-  year: number;
-  plate?: string | null;
-  photoUrl?: string | null;
-  currentKm: number;
-}
+import { Vehicle } from '../features/vehicles/types/vehicle.types';
 
 interface VehicleState {
   selectedVehicle: Vehicle | null;
