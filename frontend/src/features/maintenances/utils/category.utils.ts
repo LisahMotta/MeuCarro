@@ -1,0 +1,80 @@
+import { MaintenanceCategory } from '../types/maintenance.types';
+
+export const categoryLabels: Record<MaintenanceCategory, string> = {
+  oil_change: 'Troca de óleo',
+  oil_filter: 'Filtro de óleo',
+  air_filter: 'Filtro de ar',
+  fuel_filter: 'Filtro de combustível',
+  brake_pads: 'Pastilhas de freio',
+  brake_disc: 'Disco de freio',
+  brake_fluid: 'Fluido de freio',
+  suspension: 'Suspensão',
+  shock_absorber: 'Amortecedores',
+  alignment: 'Alinhamento',
+  balancing: 'Balanceamento',
+  rotation: 'Rodízio',
+  tires: 'Pneus',
+  clutch: 'Embreagem',
+  transmission: 'Câmbio',
+  steering: 'Direção',
+  battery: 'Bateria',
+  timing_belt: 'Correia dentada',
+  air_conditioning: 'Ar-condicionado',
+  engine: 'Motor',
+  electrical: 'Elétrica',
+  body_repair: 'Funilaria',
+  washing: 'Lavagem',
+  general_revision: 'Revisão geral',
+  other: 'Outros',
+};
+
+export const categoryColors: Record<MaintenanceCategory, string> = {
+  oil_change: 'text-yellow-500 bg-yellow-500/10',
+  oil_filter: 'text-yellow-600 bg-yellow-600/10',
+  air_filter: 'text-sky-500 bg-sky-500/10',
+  fuel_filter: 'text-orange-500 bg-orange-500/10',
+  brake_pads: 'text-red-500 bg-red-500/10',
+  brake_disc: 'text-red-600 bg-red-600/10',
+  brake_fluid: 'text-red-400 bg-red-400/10',
+  suspension: 'text-violet-500 bg-violet-500/10',
+  shock_absorber: 'text-violet-600 bg-violet-600/10',
+  alignment: 'text-blue-500 bg-blue-500/10',
+  balancing: 'text-blue-600 bg-blue-600/10',
+  rotation: 'text-cyan-500 bg-cyan-500/10',
+  tires: 'text-slate-500 bg-slate-500/10',
+  clutch: 'text-pink-500 bg-pink-500/10',
+  transmission: 'text-pink-600 bg-pink-600/10',
+  steering: 'text-indigo-500 bg-indigo-500/10',
+  battery: 'text-amber-500 bg-amber-500/10',
+  timing_belt: 'text-rose-500 bg-rose-500/10',
+  air_conditioning: 'text-teal-500 bg-teal-500/10',
+  engine: 'text-zinc-500 bg-zinc-500/10',
+  electrical: 'text-lime-500 bg-lime-500/10',
+  body_repair: 'text-fuchsia-500 bg-fuchsia-500/10',
+  washing: 'text-emerald-500 bg-emerald-500/10',
+  general_revision: 'text-green-500 bg-green-500/10',
+  other: 'text-gray-500 bg-gray-500/10',
+};
+
+export const categoryGroups = [
+  {
+    label: 'Motor & Fluidos',
+    items: ['oil_change', 'oil_filter', 'air_filter', 'fuel_filter', 'engine', 'timing_belt'] as MaintenanceCategory[],
+  },
+  {
+    label: 'Freios',
+    items: ['brake_pads', 'brake_disc', 'brake_fluid'] as MaintenanceCategory[],
+  },
+  {
+    label: 'Suspensão & Rodas',
+    items: ['suspension', 'shock_absorber', 'alignment', 'balancing', 'rotation', 'tires'] as MaintenanceCategory[],
+  },
+  {
+    label: 'Transmissão',
+    items: ['clutch', 'transmission', 'steering'] as MaintenanceCategory[],
+  },
+  {
+    label: 'Elétrica & Outros',
+    items: ['battery', 'electrical', 'air_conditioning', 'body_repair', 'washing', 'general_revision', 'other'] as MaintenanceCategory[],
+  },
+];
