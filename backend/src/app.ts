@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 import path from 'path';
 import { env } from './config/env';
 import { authRoutes } from './modules/auth/auth.routes';
+import { vehiclesRoutes } from './modules/vehicles/vehicles.routes';
 import { errorHandler } from './middleware/error.middleware';
 
 const app = express();
@@ -27,6 +28,7 @@ app.get('/api/health', (_req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/vehicles', vehiclesRoutes);
 
 app.use(errorHandler);
 
