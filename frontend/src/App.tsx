@@ -6,6 +6,9 @@ import { LoginForm } from './features/auth/components/LoginForm';
 import { RegisterForm } from './features/auth/components/RegisterForm';
 import { OnboardingPage } from './pages/OnboardingPage';
 import { DashboardPage } from './pages/DashboardPage';
+import { VehiclesPage } from './pages/VehiclesPage';
+import { VehicleNewPage } from './pages/VehicleNewPage';
+import { VehicleEditPage } from './pages/VehicleEditPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
 function LoadingScreen() {
@@ -28,7 +31,9 @@ export default function App() {
           <Route element={<AppLayout />}>
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/vehicles" element={<div className="p-4"><h1 className="text-2xl font-bold">Veículos</h1><p className="text-muted-foreground mt-2">Em desenvolvimento — Etapa 2</p></div>} />
+            <Route path="/vehicles" element={<VehiclesPage />} />
+            <Route path="/vehicles/new" element={<VehicleNewPage />} />
+            <Route path="/vehicles/:id/edit" element={<VehicleEditPage />} />
             <Route path="/fuelings" element={<div className="p-4"><h1 className="text-2xl font-bold">Abastecimentos</h1><p className="text-muted-foreground mt-2">Em desenvolvimento — Etapa 3</p></div>} />
             <Route path="/maintenances" element={<div className="p-4"><h1 className="text-2xl font-bold">Manutenções</h1><p className="text-muted-foreground mt-2">Em desenvolvimento — Etapa 4</p></div>} />
             <Route path="/tires" element={<div className="p-4"><h1 className="text-2xl font-bold">Pneus</h1><p className="text-muted-foreground mt-2">Em desenvolvimento — Etapa 5</p></div>} />
