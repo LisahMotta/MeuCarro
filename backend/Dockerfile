@@ -8,8 +8,8 @@ RUN npm run build
 FROM node:20-alpine
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --production
+RUN npm ci --omit=dev
 COPY --from=builder /app/dist ./dist
-RUN mkdir -p uploads
+COPY drizzle.config.ts ./
 EXPOSE 3001
 CMD ["node", "dist/server.js"]
