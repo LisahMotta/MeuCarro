@@ -17,6 +17,7 @@ import { MaintenanceNewPage } from './pages/MaintenanceNewPage';
 import { TiresPage } from './pages/TiresPage';
 import { DocumentsPage } from './pages/DocumentsPage';
 import { AlertsPage } from './pages/AlertsPage';
+import { ReportsPage } from './pages/ReportsPage';
 
 function LoadingScreen() {
   return (
@@ -47,7 +48,7 @@ export default function App() {
             <Route path="/maintenances/new" element={<MaintenanceNewPage />} />
             <Route path="/tires" element={<TiresPage />} />
             <Route path="/documents" element={<DocumentsPage />} />
-            <Route path="/reports" element={<div className="p-4"><h1 className="text-2xl font-bold">Relatórios</h1><p className="text-muted-foreground mt-2">Em desenvolvimento — Etapa 7</p></div>} />
+            <Route path="/reports" element={<ReportsPage />} />
             <Route path="/alerts" element={<AlertsPage />} />
             <Route path="/settings" element={<div className="p-4"><h1 className="text-2xl font-bold">Configurações</h1><p className="text-muted-foreground mt-2">Em desenvolvimento</p></div>} />
           </Route>

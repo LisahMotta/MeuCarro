@@ -13,6 +13,7 @@ import { tiresRoutes } from './modules/tires/tires.routes';
 import { documentsRoutes } from './modules/documents/documents.routes';
 import { dashboardRoutes } from './modules/dashboard/dashboard.routes';
 import { alertsRoutes } from './modules/alerts/alerts.routes';
+import { reportsRoutes } from './modules/reports/reports.routes';
 import { errorHandler } from './middleware/error.middleware';
 
 const app = express();
@@ -41,6 +42,7 @@ app.use('/api/vehicles/:vehicleId/tires', tiresRoutes);
 app.use('/api/vehicles/:vehicleId/documents', documentsRoutes);
 app.use('/api/vehicles/:vehicleId/dashboard', dashboardRoutes);
 app.use('/api/alerts', alertsRoutes);
+app.use('/api/vehicles/:vehicleId/reports', reportsRoutes);
 
 app.use(errorHandler);
 
