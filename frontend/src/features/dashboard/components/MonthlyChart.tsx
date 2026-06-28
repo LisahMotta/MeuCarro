@@ -1,6 +1,5 @@
-import {
-  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
-} from 'recharts';
+import { useState } from 'react';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { MonthlyExpense } from '../types/dashboard.types';
 import { formatCurrency } from '../../../lib/utils';
 
@@ -9,52 +8,70 @@ const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set
 interface Props { data: MonthlyExpense[]; }
 
 export function MonthlyChart({ data }: Props) {
-  const chartData = data.map((d) => ({
+  const [period, setPeriod] = useState(6);
+
+  const filtered = data.slice(-period).map((d) => ({
     month: monthNames[d.month - 1],
-    Combustível: d.fuel,
-    Manutenção: d.maintenance,
+    total: d.total,
   }));
 
-  const hasData = data.some((d) => d.total > 0);
-
-  if (!hasData) {
-    return (
-      <div className="bg-card border border-border rounded-2xl p-6">
-        <h3 className="font-semibold text-foreground mb-4">Gastos mensais</h3>
-        <div className="flex items-center justify-center h-40 text-muted-foreground text-sm">
-          Nenhum gasto registrado este ano
-        </div>
-      </div>
-    );
-  }
+  const hasData = filtered.some((d) => d.total > 0);
 
   return (
-    <div className="bg-card border border-border rounded-2xl p-6">
-      <h3 className="font-semibold text-foreground mb-6">Gastos mensais {new Date().getFullYear()}</h3>
-      <ResponsiveContainer width="100%" height={220}>
-        <BarChart data={chartData} barGap={4}>
-          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-          <XAxis dataKey="month" tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
-          <YAxis
-            tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
-            axisLine={false}
-            tickLine={false}
-            tickFormatter={(v) => `R$${v}`}
-          />
-          <Tooltip
-            formatter={(v: number) => formatCurrency(v)}
-            contentStyle={{
-              background: 'hsl(var(--card))',
-              border: '1px solid hsl(var(--border))',
-              borderRadius: '12px',
-              fontSize: '12px',
-            }}
-          />
-          <Legend wrapperStyle={{ fontSize: '12px' }} />
-          <Bar dataKey="Combustível" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-          <Bar dataKey="Manutenção" fill="hsl(217.2 32.6% 50%)" radius={[4, 4, 0, 0]} />
-        </BarChart>
-      </ResponsiveContainer>
+    <div className="bg-card border border-border rounded-2xl p-5">
+      <div className="flex items-center justify-between mb-5">
+        <h3 className="font-semibold text-foreground text-sm">Gastos nos últimos {period} meses</h3>
+        <div className="flex gap-1">
+          {[3, 6, 12].map((p) => (
+            <button
+              key={p}
+              onClick={() => setPeriod(p)}
+              className={`text-xs px-2.5 py-1 rounded-lg transition-all ${
+                period === p
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+              }`}
+            >
+              {p}m
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {hasData ? (
+        <ResponsiveContainer width="100%" height={180}>
+          <BarChart data={filtered} barGap={4}>
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+            <XAxis
+              dataKey="month"
+              tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <YAxis
+              tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+              axisLine={false}
+              tickLine={false}
+              tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`}
+              width={42}
+            />
+            <Tooltip
+              formatter={(v: number) => [formatCurrency(v), 'Total']}
+              contentStyle={{
+                background: 'hsl(var(--card))',
+                border: '1px solid hsl(var(--border))',
+                borderRadius: '10px',
+                fontSize: '12px',
+              }}
+            />
+            <Bar dataKey="total" fill="hsl(var(--primary))" radius={[5, 5, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      ) : (
+        <div className="h-44 flex items-center justify-center text-muted-foreground text-sm">
+          Nenhum gasto registrado
+        </div>
+      )}
     </div>
   );
 }

@@ -35,4 +35,5 @@ export interface MonthlyExpense {
   fuel: number;
   maintenance: number;
   total: number;
+  consumption?: number | null;
 }

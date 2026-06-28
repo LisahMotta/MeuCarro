@@ -150,15 +150,24 @@ export class DashboardService {
       .where(and(eq(maintenances.vehicleId, vehicleId), sql`EXTRACT(YEAR FROM ${maintenances.date}::date) = ${year}`))
       .groupBy(sql`EXTRACT(MONTH FROM ${maintenances.date}::date)`);
 
+    const consumptionByMonth = await db.select({
+      month: sql<number>`EXTRACT(MONTH FROM ${fuelings.date}::date)`,
+      avg: sql<string>`AVG(CASE WHEN ${fuelings.consumption} IS NOT NULL AND ${fuelings.fullTank} = true THEN ${fuelings.consumption} END)`,
+    }).from(fuelings)
+      .where(and(eq(fuelings.vehicleId, vehicleId), sql`EXTRACT(YEAR FROM ${fuelings.date}::date) = ${year}`))
+      .groupBy(sql`EXTRACT(MONTH FROM ${fuelings.date}::date)`);
+
     const months = Array.from({ length: 12 }, (_, i) => {
       const m = i + 1;
       const fuel = fuelByMonth.find((f) => Number(f.month) === m);
       const maint = maintenanceByMonth.find((mt) => Number(mt.month) === m);
+      const cons = consumptionByMonth.find((c) => Number(c.month) === m);
       return {
         month: m,
         fuel: parseFloat(fuel?.total ?? '0'),
         maintenance: parseFloat(maint?.total ?? '0'),
         total: parseFloat(fuel?.total ?? '0') + parseFloat(maint?.total ?? '0'),
+        consumption: cons?.avg ? parseFloat(cons.avg) : null,
       };
     });
 
