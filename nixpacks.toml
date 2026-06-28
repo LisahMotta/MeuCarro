@@ -6,6 +6,9 @@ cmds = [
   "npm run install:all"
 ]
 
+[phases.install.env]
+NODE_ENV = "development"
+
 [phases.build]
 cmds = [
   "npm run build",
