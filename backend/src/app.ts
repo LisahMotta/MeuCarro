@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import path from 'path';
+import fs from 'fs';
 import { env } from './config/env';
 import { authRoutes } from './modules/auth/auth.routes';
 import { vehiclesRoutes } from './modules/vehicles/vehicles.routes';
@@ -44,13 +45,23 @@ app.use('/api/vehicles/:vehicleId/dashboard', dashboardRoutes);
 app.use('/api/alerts', alertsRoutes);
 app.use('/api/vehicles/:vehicleId/reports', reportsRoutes);
 
+app.use('/api', (_req, res) => {
+  res.status(404).json({ success: false, message: 'API route not found' });
+});
+
 app.use(errorHandler);
 
-// Serve frontend in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(process.cwd(), 'public')));
+const frontendBuildPath = [
+  path.resolve(process.cwd(), 'public'),
+  path.resolve(__dirname, '../../public'),
+  path.resolve(__dirname, '../public'),
+].find((candidate) => fs.existsSync(path.join(candidate, 'index.html')));
+
+if (frontendBuildPath) {
+  app.use(express.static(frontendBuildPath));
+
   app.get('*', (_req, res) => {
-    res.sendFile(path.join(process.cwd(), 'public', 'index.html'));
+    res.sendFile(path.join(frontendBuildPath, 'index.html'));
   });
 }
 
