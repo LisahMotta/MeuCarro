@@ -1,71 +1,65 @@
--- MeuCarro — DDL completo para produção
--- Execute: psql $DATABASE_URL -f seed.sql
+-- MeuCarro — DDL gerado dos schemas Drizzle ORM
+-- DROP em ordem inversa de dependência para recriar do zero
+DROP TABLE IF EXISTS alerts CASCADE;
+DROP TABLE IF EXISTS documents CASCADE;
+DROP TABLE IF EXISTS tire_events CASCADE;
+DROP TABLE IF EXISTS tires CASCADE;
+DROP TABLE IF EXISTS maintenance_attachments CASCADE;
+DROP TABLE IF EXISTS maintenances CASCADE;
+DROP TABLE IF EXISTS fuelings CASCADE;
+DROP TABLE IF EXISTS vehicles CASCADE;
+DROP TABLE IF EXISTS refresh_tokens CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
 
--- Enums (safe creation via DO block)
-DO $$ BEGIN
-  CREATE TYPE plan_enum AS ENUM ('free', 'premium');
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+-- Remover tipos customizados se existirem
+DROP TYPE IF EXISTS plan CASCADE;
+DROP TYPE IF EXISTS fuel_type CASCADE;
+DROP TYPE IF EXISTS maintenance_category CASCADE;
+DROP TYPE IF EXISTS maintenance_status CASCADE;
+DROP TYPE IF EXISTS attachment_type CASCADE;
+DROP TYPE IF EXISTS tire_position CASCADE;
+DROP TYPE IF EXISTS tire_status CASCADE;
+DROP TYPE IF EXISTS tire_event_type CASCADE;
+DROP TYPE IF EXISTS document_type CASCADE;
+DROP TYPE IF EXISTS document_status CASCADE;
+DROP TYPE IF EXISTS alert_type CASCADE;
+DROP TYPE IF EXISTS alert_severity CASCADE;
 
-DO $$ BEGIN
-  CREATE TYPE fuel_type_enum AS ENUM ('gasoline', 'ethanol', 'flex', 'diesel', 'gnv', 'electric', 'hybrid');
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+-- Enums
+CREATE TYPE plan AS ENUM ('free', 'premium');
+CREATE TYPE fuel_type AS ENUM ('gasoline', 'ethanol', 'flex', 'diesel', 'electric', 'hybrid');
+CREATE TYPE maintenance_category AS ENUM (
+  'oil_change', 'oil_filter', 'air_filter', 'fuel_filter', 'brake_pads',
+  'brake_disc', 'brake_fluid', 'suspension', 'shock_absorber', 'alignment',
+  'balancing', 'rotation', 'tires', 'clutch', 'transmission', 'steering',
+  'battery', 'timing_belt', 'air_conditioning', 'engine', 'electrical',
+  'body_repair', 'washing', 'general_revision', 'other'
+);
+CREATE TYPE maintenance_status AS ENUM ('completed', 'scheduled', 'overdue');
+CREATE TYPE attachment_type AS ENUM ('photo', 'invoice', 'other');
+CREATE TYPE tire_position AS ENUM ('FL', 'FR', 'RL', 'RR', 'spare');
+CREATE TYPE tire_status AS ENUM ('active', 'replaced', 'spare');
+CREATE TYPE tire_event_type AS ENUM ('rotation', 'calibration', 'repair', 'replacement');
+CREATE TYPE document_type AS ENUM ('insurance', 'ipva', 'licensing', 'fine', 'inspection', 'crlv', 'other');
+CREATE TYPE document_status AS ENUM ('active', 'expired', 'cancelled');
+CREATE TYPE alert_type AS ENUM ('oil_change', 'rotation', 'revision', 'timing_belt', 'insurance', 'ipva', 'licensing', 'cnh', 'warranty', 'custom');
+CREATE TYPE alert_severity AS ENUM ('info', 'warning', 'urgent', 'critical');
 
-DO $$ BEGIN
-  CREATE TYPE maintenance_category_enum AS ENUM (
-    'oil_change','filter_air','filter_fuel','filter_cabin','filter_oil',
-    'brake_pads','brake_discs','brake_fluid','tires','wheel_alignment',
-    'wheel_balancing','rotation','suspension','shock_absorbers','steering',
-    'timing_belt','serpentine_belt','spark_plugs','battery','alternator',
-    'starter','ac_service','ac_recharge','coolant','transmission',
-    'clutch','fuel_pump','injectors','general_revision','other'
-  );
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN
-  CREATE TYPE maintenance_status_enum AS ENUM ('pending','completed','cancelled');
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN
-  CREATE TYPE tire_position_enum AS ENUM ('FL','FR','RL','RR','spare');
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN
-  CREATE TYPE tire_status_enum AS ENUM ('active','worn','replaced','stored');
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN
-  CREATE TYPE tire_event_type_enum AS ENUM ('calibration','rotation','replacement','alignment','balancing','other');
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN
-  CREATE TYPE document_type_enum AS ENUM ('insurance','ipva','licensing','fine','inspection','crlv','other');
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN
-  CREATE TYPE document_status_enum AS ENUM ('active','expired','cancelled');
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN
-  CREATE TYPE alert_type_enum AS ENUM ('oil_change','rotation','revision','timing_belt','insurance','ipva','licensing','tire_pressure','battery','custom');
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
-DO $$ BEGIN
-  CREATE TYPE alert_severity_enum AS ENUM ('info','warning','urgent','critical');
-EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-
--- Tabelas
-CREATE TABLE IF NOT EXISTS users (
+-- users
+CREATE TABLE users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name VARCHAR(255) NOT NULL,
+  name VARCHAR(100) NOT NULL,
   email VARCHAR(255) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
-  plan plan_enum NOT NULL DEFAULT 'free',
-  avatar VARCHAR(500),
+  avatar_url TEXT,
+  plan plan NOT NULL DEFAULT 'free',
+  is_active BOOLEAN NOT NULL DEFAULT true,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS refresh_tokens (
+-- refresh_tokens
+CREATE TABLE refresh_tokens (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   token VARCHAR(500) NOT NULL UNIQUE,
@@ -73,143 +67,161 @@ CREATE TABLE IF NOT EXISTS refresh_tokens (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS vehicles (
+-- vehicles
+CREATE TABLE vehicles (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  brand VARCHAR(100) NOT NULL,
-  model VARCHAR(100) NOT NULL,
+  brand VARCHAR(50) NOT NULL,
+  model VARCHAR(50) NOT NULL,
   year INTEGER NOT NULL,
-  plate VARCHAR(20),
-  color VARCHAR(50),
-  fuel_type fuel_type_enum,
+  version VARCHAR(100),
+  plate VARCHAR(10),
+  chassis VARCHAR(17),
+  renavam VARCHAR(11),
+  color VARCHAR(30),
   current_km INTEGER NOT NULL DEFAULT 0,
-  photo VARCHAR(500),
-  notes TEXT,
+  fuel_type fuel_type NOT NULL DEFAULT 'flex',
+  tank_capacity DECIMAL(5,2),
+  oil_type VARCHAR(50),
+  oil_quantity DECIMAL(3,1),
+  tire_size VARCHAR(20),
+  photo_url TEXT,
   is_active BOOLEAN NOT NULL DEFAULT true,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE INDEX IF NOT EXISTS idx_vehicles_user_id ON vehicles(user_id);
-CREATE INDEX IF NOT EXISTS idx_vehicles_plate ON vehicles(plate);
+CREATE INDEX vehicles_user_id_idx ON vehicles(user_id);
+CREATE INDEX vehicles_plate_idx ON vehicles(plate);
 
-CREATE TABLE IF NOT EXISTS fuelings (
+-- fuelings
+CREATE TABLE fuelings (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
-  date VARCHAR(10) NOT NULL,
+  date DATE NOT NULL,
   odometer INTEGER NOT NULL,
-  liters NUMERIC(8,3) NOT NULL,
-  price_per_liter NUMERIC(8,3) NOT NULL,
-  total_cost NUMERIC(10,2) NOT NULL,
-  fuel_type VARCHAR(50),
-  full_tank BOOLEAN NOT NULL DEFAULT true,
-  station VARCHAR(255),
+  station_name VARCHAR(100),
+  city VARCHAR(100),
+  fuel_type fuel_type NOT NULL,
+  liters DECIMAL(8,3) NOT NULL,
+  price_per_liter DECIMAL(8,3) NOT NULL,
+  total_cost DECIMAL(10,2) NOT NULL,
+  full_tank BOOLEAN NOT NULL DEFAULT false,
+  partial_tank BOOLEAN NOT NULL DEFAULT false,
+  consumption DECIMAL(6,3),
+  autonomy DECIMAL(8,2),
+  cost_per_km DECIMAL(8,4),
   notes TEXT,
-  consumption NUMERIC(6,3),
-  autonomy NUMERIC(8,2),
-  cost_per_km NUMERIC(8,4),
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  receipt_url TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE INDEX IF NOT EXISTS idx_fuelings_vehicle_date ON fuelings(vehicle_id, date);
-CREATE INDEX IF NOT EXISTS idx_fuelings_vehicle_odometer ON fuelings(vehicle_id, odometer);
+CREATE INDEX fuelings_vehicle_date_idx ON fuelings(vehicle_id, date);
+CREATE INDEX fuelings_vehicle_odometer_idx ON fuelings(vehicle_id, odometer);
 
-CREATE TABLE IF NOT EXISTS maintenances (
+-- maintenances
+CREATE TABLE maintenances (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
-  title VARCHAR(255) NOT NULL,
-  category maintenance_category_enum NOT NULL,
-  date VARCHAR(10) NOT NULL,
-  odometer INTEGER,
-  labor_cost NUMERIC(10,2),
-  parts_cost NUMERIC(10,2),
-  total_cost NUMERIC(10,2),
-  shop VARCHAR(255),
-  notes TEXT,
-  status maintenance_status_enum NOT NULL DEFAULT 'completed',
+  date DATE NOT NULL,
+  odometer INTEGER NOT NULL,
+  category maintenance_category NOT NULL,
+  shop_name VARCHAR(100),
+  mechanic_name VARCHAR(100),
+  labor_cost DECIMAL(10,2) DEFAULT 0,
+  parts_cost DECIMAL(10,2) DEFAULT 0,
+  total_cost DECIMAL(10,2) NOT NULL,
+  warranty_until DATE,
+  next_service_date DATE,
   next_service_km INTEGER,
-  next_service_date VARCHAR(10),
-  warranty_until VARCHAR(10),
+  notes TEXT,
+  status maintenance_status NOT NULL DEFAULT 'completed',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+CREATE INDEX maintenances_vehicle_date_idx ON maintenances(vehicle_id, date);
+CREATE INDEX maintenances_vehicle_category_idx ON maintenances(vehicle_id, category);
+CREATE INDEX maintenances_vehicle_next_km_idx ON maintenances(vehicle_id, next_service_km);
 
-CREATE TABLE IF NOT EXISTS maintenance_attachments (
+-- maintenance_attachments
+CREATE TABLE maintenance_attachments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   maintenance_id UUID NOT NULL REFERENCES maintenances(id) ON DELETE CASCADE,
-  filename VARCHAR(500) NOT NULL,
-  original_name VARCHAR(255) NOT NULL,
-  mimetype VARCHAR(100) NOT NULL,
-  size INTEGER NOT NULL,
+  type attachment_type NOT NULL,
+  url TEXT NOT NULL,
+  filename VARCHAR(255),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS tires (
+-- tires
+CREATE TABLE tires (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
-  brand VARCHAR(100) NOT NULL,
-  model VARCHAR(100) NOT NULL,
-  size VARCHAR(50) NOT NULL,
-  position tire_position_enum NOT NULL,
-  status tire_status_enum NOT NULL DEFAULT 'active',
-  purchase_date VARCHAR(10),
-  purchase_price NUMERIC(10,2),
-  odometer_installed INTEGER,
-  notes TEXT,
+  brand VARCHAR(50),
+  model VARCHAR(100),
+  size VARCHAR(20),
+  dot VARCHAR(8),
+  purchase_price DECIMAL(10,2),
+  purchase_date DATE,
+  install_km INTEGER,
+  position tire_position,
+  estimated_life_km INTEGER,
+  status tire_status NOT NULL DEFAULT 'active',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+CREATE INDEX tires_vehicle_idx ON tires(vehicle_id);
 
-CREATE TABLE IF NOT EXISTS tire_events (
+-- tire_events
+CREATE TABLE tire_events (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tire_id UUID REFERENCES tires(id) ON DELETE SET NULL,
   vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
-  event_type tire_event_type_enum NOT NULL,
-  date VARCHAR(10) NOT NULL,
+  date DATE NOT NULL,
   odometer INTEGER,
-  cost NUMERIC(10,2),
-  shop VARCHAR(255),
-  description TEXT,
-  pressure_fl NUMERIC(4,1),
-  pressure_fr NUMERIC(4,1),
-  pressure_rl NUMERIC(4,1),
-  pressure_rr NUMERIC(4,1),
+  type tire_event_type NOT NULL,
+  pressure_fl DECIMAL(4,1),
+  pressure_fr DECIMAL(4,1),
+  pressure_rl DECIMAL(4,1),
+  pressure_rr DECIMAL(4,1),
+  cost DECIMAL(10,2),
+  notes TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS documents (
+-- documents
+CREATE TABLE documents (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
-  type document_type_enum NOT NULL,
-  title VARCHAR(255) NOT NULL,
-  issue_date VARCHAR(10),
-  expiry_date VARCHAR(10),
-  value NUMERIC(10,2),
-  insurer VARCHAR(255),
-  policy_number VARCHAR(100),
+  type document_type NOT NULL,
+  title VARCHAR(100) NOT NULL,
+  issuer VARCHAR(100),
+  issue_date DATE,
+  expiry_date DATE,
+  value DECIMAL(10,2),
+  status document_status NOT NULL DEFAULT 'active',
+  file_url TEXT,
   notes TEXT,
-  file_path VARCHAR(500),
-  status document_status_enum NOT NULL DEFAULT 'active',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE INDEX IF NOT EXISTS idx_documents_vehicle_type ON documents(vehicle_id, type);
-CREATE INDEX IF NOT EXISTS idx_documents_vehicle_expiry ON documents(vehicle_id, expiry_date);
+CREATE INDEX documents_vehicle_type_idx ON documents(vehicle_id, type);
+CREATE INDEX documents_vehicle_expiry_idx ON documents(vehicle_id, expiry_date);
 
-CREATE TABLE IF NOT EXISTS alerts (
+-- alerts
+CREATE TABLE alerts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   vehicle_id UUID NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  type alert_type_enum NOT NULL,
-  title VARCHAR(255) NOT NULL,
+  type alert_type NOT NULL,
+  title VARCHAR(100) NOT NULL,
   description TEXT,
-  severity alert_severity_enum NOT NULL DEFAULT 'info',
-  trigger_date VARCHAR(10),
+  severity alert_severity NOT NULL DEFAULT 'info',
+  trigger_date DATE,
   trigger_km INTEGER,
-  is_read BOOLEAN NOT NULL DEFAULT false,
-  is_dismissed BOOLEAN NOT NULL DEFAULT false,
   reference_id UUID,
   reference_type VARCHAR(50),
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  is_read BOOLEAN NOT NULL DEFAULT false,
+  is_dismissed BOOLEAN NOT NULL DEFAULT false,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE INDEX IF NOT EXISTS idx_alerts_user_read ON alerts(user_id, is_read);
-CREATE INDEX IF NOT EXISTS idx_alerts_vehicle ON alerts(vehicle_id, trigger_date);
+CREATE INDEX alerts_user_read_idx ON alerts(user_id, is_read);
+CREATE INDEX alerts_vehicle_date_idx ON alerts(vehicle_id, trigger_date);
