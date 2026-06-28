@@ -1,25 +1,57 @@
 -- MeuCarro — DDL completo para produção
 -- Execute: psql $DATABASE_URL -f seed.sql
 
--- Enums
-CREATE TYPE IF NOT EXISTS plan_enum AS ENUM ('free', 'premium');
-CREATE TYPE IF NOT EXISTS fuel_type_enum AS ENUM ('gasoline', 'ethanol', 'flex', 'diesel', 'gnv', 'electric', 'hybrid');
-CREATE TYPE IF NOT EXISTS maintenance_category_enum AS ENUM (
-  'oil_change','filter_air','filter_fuel','filter_cabin','filter_oil',
-  'brake_pads','brake_discs','brake_fluid','tires','wheel_alignment',
-  'wheel_balancing','rotation','suspension','shock_absorbers','steering',
-  'timing_belt','serpentine_belt','spark_plugs','battery','alternator',
-  'starter','ac_service','ac_recharge','coolant','transmission',
-  'clutch','fuel_pump','injectors','general_revision','other'
-);
-CREATE TYPE IF NOT EXISTS maintenance_status_enum AS ENUM ('pending','completed','cancelled');
-CREATE TYPE IF NOT EXISTS tire_position_enum AS ENUM ('FL','FR','RL','RR','spare');
-CREATE TYPE IF NOT EXISTS tire_status_enum AS ENUM ('active','worn','replaced','stored');
-CREATE TYPE IF NOT EXISTS tire_event_type_enum AS ENUM ('calibration','rotation','replacement','alignment','balancing','other');
-CREATE TYPE IF NOT EXISTS document_type_enum AS ENUM ('insurance','ipva','licensing','fine','inspection','crlv','other');
-CREATE TYPE IF NOT EXISTS document_status_enum AS ENUM ('active','expired','cancelled');
-CREATE TYPE IF NOT EXISTS alert_type_enum AS ENUM ('oil_change','rotation','revision','timing_belt','insurance','ipva','licensing','tire_pressure','battery','custom');
-CREATE TYPE IF NOT EXISTS alert_severity_enum AS ENUM ('info','warning','urgent','critical');
+-- Enums (safe creation via DO block)
+DO $$ BEGIN
+  CREATE TYPE plan_enum AS ENUM ('free', 'premium');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE TYPE fuel_type_enum AS ENUM ('gasoline', 'ethanol', 'flex', 'diesel', 'gnv', 'electric', 'hybrid');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE TYPE maintenance_category_enum AS ENUM (
+    'oil_change','filter_air','filter_fuel','filter_cabin','filter_oil',
+    'brake_pads','brake_discs','brake_fluid','tires','wheel_alignment',
+    'wheel_balancing','rotation','suspension','shock_absorbers','steering',
+    'timing_belt','serpentine_belt','spark_plugs','battery','alternator',
+    'starter','ac_service','ac_recharge','coolant','transmission',
+    'clutch','fuel_pump','injectors','general_revision','other'
+  );
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE TYPE maintenance_status_enum AS ENUM ('pending','completed','cancelled');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE TYPE tire_position_enum AS ENUM ('FL','FR','RL','RR','spare');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE TYPE tire_status_enum AS ENUM ('active','worn','replaced','stored');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE TYPE tire_event_type_enum AS ENUM ('calibration','rotation','replacement','alignment','balancing','other');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE TYPE document_type_enum AS ENUM ('insurance','ipva','licensing','fine','inspection','crlv','other');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE TYPE document_status_enum AS ENUM ('active','expired','cancelled');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE TYPE alert_type_enum AS ENUM ('oil_change','rotation','revision','timing_belt','insurance','ipva','licensing','tire_pressure','battery','custom');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE TYPE alert_severity_enum AS ENUM ('info','warning','urgent','critical');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 -- Tabelas
 CREATE TABLE IF NOT EXISTS users (
