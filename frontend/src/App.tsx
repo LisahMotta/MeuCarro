@@ -14,8 +14,10 @@ import { SettingsPage } from './pages/SettingsPage';
 import { InstallBanner } from './components/pwa/InstallBanner';
 import { FuelingsPage } from './pages/FuelingsPage';
 import { FuelingNewPage } from './pages/FuelingNewPage';
+import { FuelingEditPage } from './pages/FuelingEditPage';
 import { MaintenancesPage } from './pages/MaintenancesPage';
 import { MaintenanceNewPage } from './pages/MaintenanceNewPage';
+import { MaintenanceEditPage } from './pages/MaintenanceEditPage';
 import { TiresPage } from './pages/TiresPage';
 import { DocumentsPage } from './pages/DocumentsPage';
 import { AlertsPage } from './pages/AlertsPage';
@@ -46,8 +48,10 @@ export default function App() {
             <Route path="/vehicles/:id/edit" element={<VehicleEditPage />} />
             <Route path="/fuelings" element={<FuelingsPage />} />
             <Route path="/fuelings/new" element={<FuelingNewPage />} />
+            <Route path="/fuelings/:id/edit" element={<FuelingEditPage />} />
             <Route path="/maintenances" element={<MaintenancesPage />} />
             <Route path="/maintenances/new" element={<MaintenanceNewPage />} />
+            <Route path="/maintenances/:id/edit" element={<MaintenanceEditPage />} />
             <Route path="/tires" element={<TiresPage />} />
             <Route path="/documents" element={<DocumentsPage />} />
             <Route path="/reports" element={<ReportsPage />} />

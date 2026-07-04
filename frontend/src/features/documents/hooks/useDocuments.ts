@@ -16,6 +16,15 @@ export function useCreateDocument(vehicleId: string) {
   });
 }
 
+export function useUpdateDocument(vehicleId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: Partial<CreateDocumentPayload> }) =>
+      documentsService.update(vehicleId, id, payload),
+    onSuccess: () => qc.invalidateQueries({ queryKey: documentsKey(vehicleId) }),
+  });
+}
+
 export function useDeleteDocument(vehicleId: string) {
   const qc = useQueryClient();
   return useMutation({

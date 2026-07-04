@@ -1,4 +1,5 @@
-import { Wrench, Calendar, Gauge, Shield, ChevronRight, Trash2, AlertTriangle } from 'lucide-react';
+import { Wrench, Calendar, Gauge, Shield, Trash2, AlertTriangle, Pencil } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Maintenance } from '../types/maintenance.types';
 import { categoryLabels, categoryColors } from '../utils/category.utils';
 import { formatCurrency, formatDate, formatKm } from '../../../lib/utils';
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export function MaintenanceCard({ maintenance, onDelete }: Props) {
+  const navigate = useNavigate();
   const catColor = categoryColors[maintenance.category];
   const status = statusConfig[maintenance.status];
 
@@ -89,12 +91,20 @@ export function MaintenanceCard({ maintenance, onDelete }: Props) {
         {maintenance.mechanicName ? (
           <span className="text-xs text-muted-foreground">Mecânico: {maintenance.mechanicName}</span>
         ) : <span />}
-        <button
-          onClick={() => onDelete(maintenance.id)}
-          className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-all p-1 rounded-lg hover:bg-destructive/10"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+          <button
+            onClick={() => navigate(`/maintenances/${maintenance.id}/edit`)}
+            className="text-muted-foreground hover:text-primary p-1 rounded-lg hover:bg-primary/10 transition-all"
+          >
+            <Pencil className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => onDelete(maintenance.id)}
+            className="text-muted-foreground hover:text-destructive p-1 rounded-lg hover:bg-destructive/10 transition-all"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
       </div>
     </div>
   );

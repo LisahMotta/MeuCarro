@@ -34,6 +34,27 @@ export function useCreateMaintenance(vehicleId: string) {
   });
 }
 
+export function useMaintenance(vehicleId: string, id: string) {
+  return useQuery({
+    queryKey: ['maintenance', vehicleId, id],
+    queryFn: () => maintenancesService.getById(vehicleId, id),
+    enabled: !!vehicleId && !!id,
+  });
+}
+
+export function useUpdateMaintenance(vehicleId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: Partial<CreateMaintenancePayload> }) =>
+      maintenancesService.update(vehicleId, id, payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: maintenancesKey(vehicleId) });
+      qc.invalidateQueries({ queryKey: maintenancesStatsKey(vehicleId) });
+      qc.invalidateQueries({ queryKey: VEHICLES_KEY });
+    },
+  });
+}
+
 export function useDeleteMaintenance(vehicleId: string) {
   const qc = useQueryClient();
   return useMutation({

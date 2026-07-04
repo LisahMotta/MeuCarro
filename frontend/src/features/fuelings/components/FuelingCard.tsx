@@ -1,4 +1,5 @@
-import { Fuel, MapPin, Gauge, TrendingUp, Trash2, ChevronRight } from 'lucide-react';
+import { Fuel, MapPin, Gauge, TrendingUp, Trash2, Pencil } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Fueling } from '../types/fueling.types';
 import { formatCurrency, formatDate, formatKm } from '../../../lib/utils';
 
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export function FuelingCard({ fueling, onDelete }: Props) {
+  const navigate = useNavigate();
   return (
     <div className="bg-card border border-border rounded-2xl p-4 hover:border-primary/30 transition-all group">
       <div className="flex items-start justify-between mb-3">
@@ -74,12 +76,20 @@ export function FuelingCard({ fueling, onDelete }: Props) {
             <span className="text-xs bg-orange-500/10 text-orange-500 px-2 py-0.5 rounded-full font-medium">Parcial</span>
           )}
         </div>
-        <button
-          onClick={() => onDelete(fueling.id)}
-          className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-all p-1 rounded-lg hover:bg-destructive/10"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+          <button
+            onClick={() => navigate(`/fuelings/${fueling.id}/edit`)}
+            className="text-muted-foreground hover:text-primary p-1 rounded-lg hover:bg-primary/10 transition-all"
+          >
+            <Pencil className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => onDelete(fueling.id)}
+            className="text-muted-foreground hover:text-destructive p-1 rounded-lg hover:bg-destructive/10 transition-all"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
       </div>
     </div>
   );

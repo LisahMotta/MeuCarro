@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
-import { MaintenanceCategory } from '../types/maintenance.types';
+import { MaintenanceCategory, Maintenance } from '../types/maintenance.types';
 import { categoryLabels, categoryGroups } from '../utils/category.utils';
 
 const schema = z.object({
@@ -25,22 +25,40 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 interface Props {
+  maintenance?: Maintenance;
   vehicleCurrentKm?: number;
   onSubmit: (data: FormData) => Promise<void>;
   isLoading?: boolean;
 }
 
-export function MaintenanceForm({ vehicleCurrentKm, onSubmit, isLoading }: Props) {
+export function MaintenanceForm({ maintenance, vehicleCurrentKm, onSubmit, isLoading }: Props) {
+  const isEditing = !!maintenance;
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      date: new Date().toISOString().split('T')[0],
-      odometer: vehicleCurrentKm ?? 0,
-      laborCost: 0,
-      partsCost: 0,
-      totalCost: 0,
-      status: 'completed',
-    },
+    defaultValues: maintenance
+      ? {
+          date: maintenance.date,
+          odometer: maintenance.odometer,
+          category: maintenance.category,
+          shopName: maintenance.shopName ?? '',
+          mechanicName: maintenance.mechanicName ?? '',
+          laborCost: parseFloat(maintenance.laborCost),
+          partsCost: parseFloat(maintenance.partsCost),
+          totalCost: parseFloat(maintenance.totalCost),
+          warrantyUntil: maintenance.warrantyUntil ?? '',
+          nextServiceDate: maintenance.nextServiceDate ?? '',
+          nextServiceKm: maintenance.nextServiceKm ?? undefined,
+          notes: maintenance.notes ?? '',
+          status: maintenance.status as 'completed' | 'scheduled' | 'overdue',
+        }
+      : {
+          date: new Date().toISOString().split('T')[0],
+          odometer: vehicleCurrentKm ?? 0,
+          laborCost: 0,
+          partsCost: 0,
+          totalCost: 0,
+          status: 'completed',
+        },
   });
 
   const laborCost = watch('laborCost');
@@ -160,7 +178,7 @@ export function MaintenanceForm({ vehicleCurrentKm, onSubmit, isLoading }: Props
         className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
       >
         {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-        {isLoading ? 'Salvando...' : 'Registrar manutenção'}
+        {isLoading ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Registrar manutenção'}
       </button>
     </form>
   );

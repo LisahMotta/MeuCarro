@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { FuelType } from '../../vehicles/types/vehicle.types';
+import { Fueling } from '../types/fueling.types';
 
 const schema = z.object({
   date: z.string().min(1, 'Obrigatório'),
@@ -27,22 +28,38 @@ const fuelLabels: Record<FuelType, string> = {
 };
 
 interface Props {
+  fueling?: Fueling;
   vehicleCurrentKm?: number;
   vehicleFuelType?: FuelType;
   onSubmit: (data: FormData) => Promise<void>;
   isLoading?: boolean;
 }
 
-export function FuelingForm({ vehicleCurrentKm, vehicleFuelType, onSubmit, isLoading }: Props) {
+export function FuelingForm({ fueling, vehicleCurrentKm, vehicleFuelType, onSubmit, isLoading }: Props) {
+  const isEditing = !!fueling;
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      date: new Date().toISOString().split('T')[0],
-      odometer: vehicleCurrentKm ?? 0,
-      fuelType: vehicleFuelType ?? 'flex',
-      fullTank: true,
-      partialTank: false,
-    },
+    defaultValues: fueling
+      ? {
+          date: fueling.date,
+          odometer: fueling.odometer,
+          stationName: fueling.stationName ?? '',
+          city: fueling.city ?? '',
+          fuelType: fueling.fuelType as FuelType,
+          liters: parseFloat(fueling.liters),
+          pricePerLiter: parseFloat(fueling.pricePerLiter),
+          totalCost: parseFloat(fueling.totalCost),
+          fullTank: fueling.fullTank,
+          partialTank: fueling.partialTank,
+          notes: fueling.notes ?? '',
+        }
+      : {
+          date: new Date().toISOString().split('T')[0],
+          odometer: vehicleCurrentKm ?? 0,
+          fuelType: vehicleFuelType ?? 'flex',
+          fullTank: true,
+          partialTank: false,
+        },
   });
 
   const liters = watch('liters');
@@ -168,7 +185,7 @@ export function FuelingForm({ vehicleCurrentKm, vehicleFuelType, onSubmit, isLoa
         className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
       >
         {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-        {isLoading ? 'Registrando...' : 'Registrar abastecimento'}
+        {isLoading ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Registrar abastecimento'}
       </button>
     </form>
   );
