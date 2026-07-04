@@ -60,7 +60,13 @@ const frontendBuildPath = [
 if (frontendBuildPath) {
   app.use(express.static(frontendBuildPath));
 
-  app.get('*', (_req, res) => {
+  app.get('*', (req, res) => {
+    // Requests for static assets (paths with a file extension) that reached
+    // this point don't exist in the build — return 404 instead of index.html,
+    // otherwise browsers receive HTML when expecting images/scripts.
+    if (path.extname(req.path)) {
+      return res.status(404).end();
+    }
     res.sendFile(path.join(frontendBuildPath, 'index.html'));
   });
 }

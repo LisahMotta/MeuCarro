@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { env } from '../../config/env';
@@ -16,7 +17,10 @@ function signAccessToken(user: User) {
 }
 
 function signRefreshToken(userId: string) {
-  return jwt.sign({ id: userId }, env.JWT_REFRESH_SECRET, {
+  // jti guarantees uniqueness: without it, two tokens issued for the same
+  // user within the same second are identical and violate the UNIQUE
+  // constraint on refresh_tokens.token.
+  return jwt.sign({ id: userId, jti: randomUUID() }, env.JWT_REFRESH_SECRET, {
     expiresIn: env.JWT_REFRESH_EXPIRES_IN as any,
   });
 }
