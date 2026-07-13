@@ -31,6 +31,8 @@ interface Props {
   isLoading?: boolean;
 }
 
+const KM_INTERVAL_CATEGORIES = new Set(['oil_change', 'air_filter', 'fuel_filter', 'timing_belt']);
+
 export function MaintenanceForm({ maintenance, vehicleCurrentKm, onSubmit, isLoading }: Props) {
   const isEditing = !!maintenance;
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormData>({
@@ -63,6 +65,8 @@ export function MaintenanceForm({ maintenance, vehicleCurrentKm, onSubmit, isLoa
 
   const laborCost = watch('laborCost');
   const partsCost = watch('partsCost');
+  const category = watch('category');
+  const showKmInterval = KM_INTERVAL_CATEGORIES.has(category);
 
   useEffect(() => {
     const total = (laborCost || 0) + (partsCost || 0);
@@ -147,10 +151,18 @@ export function MaintenanceForm({ maintenance, vehicleCurrentKm, onSubmit, isLoa
             <label className={labelCls}>Data prevista</label>
             <input {...register('nextServiceDate')} type="date" className={inputCls} />
           </div>
-          <div>
-            <label className={labelCls}>Quilometragem prevista</label>
-            <input {...register('nextServiceKm', { valueAsNumber: true })} type="number" placeholder="Ex: 60000" className={inputCls} />
-          </div>
+          {showKmInterval ? (
+            <div>
+              <label className={labelCls}>Quilometragem prevista *</label>
+              <input {...register('nextServiceKm', { valueAsNumber: true })} type="number" placeholder="Ex: 60000" className={inputCls} />
+              {errors.nextServiceKm && <p className="text-destructive text-xs mt-1">{errors.nextServiceKm.message}</p>}
+            </div>
+          ) : (
+            <div>
+              <label className={labelCls}>Quilometragem prevista <span className="text-muted-foreground font-normal">(opcional)</span></label>
+              <input {...register('nextServiceKm', { valueAsNumber: true })} type="number" placeholder="Ex: 60000" className={inputCls} />
+            </div>
+          )}
           <div>
             <label className={labelCls}>Garantia até</label>
             <input {...register('warrantyUntil')} type="date" className={inputCls} />
