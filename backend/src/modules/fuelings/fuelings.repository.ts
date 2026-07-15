@@ -1,4 +1,4 @@
-import { eq, and, desc, lt, asc, sql } from 'drizzle-orm';
+import { eq, and, desc, lt, gt, asc, sql } from 'drizzle-orm';
 import { db } from '../../shared/database/connection';
 import { fuelings, vehicles, NewFueling, Fueling } from '../../shared/database/schema';
 
@@ -27,6 +27,20 @@ export class FuelingsRepository {
       .orderBy(desc(fuelings.odometer))
       .limit(1);
     return result[0];
+  }
+
+  // Sums liters and cost for all fills strictly between two odometer readings (for partial fills between full tanks)
+  async aggregateBetween(vehicleId: string, afterOdometer: number, beforeOdometer: number): Promise<{ liters: number; cost: number }> {
+    const result = await db.select({
+      liters: sql<string>`COALESCE(SUM(${fuelings.liters}), 0)`,
+      cost: sql<string>`COALESCE(SUM(${fuelings.totalCost}), 0)`,
+    }).from(fuelings)
+      .where(and(
+        eq(fuelings.vehicleId, vehicleId),
+        gt(fuelings.odometer, afterOdometer),
+        lt(fuelings.odometer, beforeOdometer),
+      ));
+    return { liters: parseFloat(result[0].liters), cost: parseFloat(result[0].cost) };
   }
 
   async create(data: NewFueling): Promise<Fueling> {

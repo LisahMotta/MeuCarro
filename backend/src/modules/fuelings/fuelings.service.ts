@@ -29,12 +29,18 @@ export class FuelingsService {
       const prevFullTank = await repo.findLastFullTank(vehicleId, dto.odometer);
       if (prevFullTank) {
         const kmDiff = dto.odometer - Number(prevFullTank.odometer);
-        if (kmDiff > 0 && dto.liters > 0) {
-          const cons = kmDiff / dto.liters;
-          consumption = cons.toFixed(3);
-          const tankCap = vehicle.tankCapacity ? Number(vehicle.tankCapacity) : dto.liters;
-          autonomy = (cons * tankCap).toFixed(2);
-          costPerKm = (dto.totalCost / kmDiff).toFixed(4);
+        if (kmDiff > 0) {
+          // Sum partial fills between the two full-tank events
+          const between = await repo.aggregateBetween(vehicleId, Number(prevFullTank.odometer), dto.odometer);
+          const totalLiters = between.liters + dto.liters;
+          const totalCost = between.cost + dto.totalCost;
+          if (totalLiters > 0) {
+            const cons = kmDiff / totalLiters;
+            consumption = cons.toFixed(3);
+            const tankCap = vehicle.tankCapacity ? Number(vehicle.tankCapacity) : totalLiters;
+            autonomy = (cons * tankCap).toFixed(2);
+            costPerKm = (totalCost / kmDiff).toFixed(4);
+          }
         }
       }
     }
